@@ -4,11 +4,11 @@ const model  = require( "../models/UserModel");
 const sequelize:Sequelize = require("./Sequelize")
 
 
-    async function init():Promise<void> {
+   const init = async ():Promise<void> => {
         await model.sync();
     }
 
-    async function auth():Promise<void> {
+    const auth= async ():Promise<void> => {
         await sequelize.authenticate()
     }
 

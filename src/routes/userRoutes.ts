@@ -1,39 +1,19 @@
-import {Router, Request, Response} from "express";
+import {Router} from "express";
 
 
 const routes : Router = Router()
 
+const userController = require("../controllers/UserController")
+
 const BaseRoute : String = "/api/v1"
 
-routes.get(`${BaseRoute}/user`, (req: Request, res: Response): void => {
-    res.send({
-        "msg": "Hello user!!"
-    })
-})
+routes.get(`${BaseRoute}/user/:email`, userController.readOne)
 
-routes.get(`${BaseRoute}/user/{id}`, (req: Request, res: Response): void => {
-    res.send({
-        "msg": "Hello user!!"
-    })
-})
+routes.post(`${BaseRoute}/user`, userController.create)
 
-routes.post(`${BaseRoute}/user`, (req: Request, res: Response): void => {
-    res.send({
-        "msg": "Hello user!!"
-    })
-})
+routes.delete(`${BaseRoute}/user/:email`, userController.deleteOne)
 
-routes.delete(`${BaseRoute}/user/{id}`, (req: Request, res: Response): void => {
-    res.send({
-        "msg": "Hello user!!"
-    })
-})
-
-routes.put(`${BaseRoute}/user/{id}`, (req: Request, res: Response): void => {
-    res.send({
-        "msg": "Hello user!!"
-    })
-})
+routes.put(`${BaseRoute}/user/:email`,userController.update)
 
 
 module.exports = routes

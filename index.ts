@@ -1,5 +1,6 @@
 import express, {Express, Request, Response, Router} from "express"
 
+
 import 'dotenv/config'
 
 const router: Router = require("./src/routes/index.ts")
@@ -9,6 +10,12 @@ const app: Express = express();
 const db = require("./src/utils/db")
 
 const port = process.env.PORT;
+
+app.use(express.json())
+
+app.use(express.urlencoded({
+    extended: false
+}))
 
 //init router
 app.use(router)

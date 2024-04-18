@@ -11,4 +11,29 @@ routes.get(`${BaseRoute}/user`, (req: Request, res: Response): void => {
     })
 })
 
+routes.get(`${BaseRoute}/user/{id}`, (req: Request, res: Response): void => {
+    res.send({
+        "msg": "Hello user!!"
+    })
+})
+
+routes.post(`${BaseRoute}/user`, (req: Request, res: Response): void => {
+    res.send({
+        "msg": "Hello user!!"
+    })
+})
+
+routes.delete(`${BaseRoute}/user/{id}`, (req: Request, res: Response): void => {
+    res.send({
+        "msg": "Hello user!!"
+    })
+})
+
+routes.put(`${BaseRoute}/user/{id}`, (req: Request, res: Response): void => {
+    res.send({
+        "msg": "Hello user!!"
+    })
+})
+
+
 module.exports = routes

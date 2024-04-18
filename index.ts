@@ -1,12 +1,16 @@
-import express, {Express, Request, Response} from "express"
+import express, {Express, Request, Response, Router} from "express"
 import 'dotenv/config'
+
+const userRouter: Router = require("./src/routes/userRoutes.ts")
 
 const app: Express = express();
 
 
 const port = process.env.PORT;
 
-app.get("/", (req: Request, res: Response) => {
+app.use(userRouter)
+
+app.get("/", (req: Request, res: Response): void => {
         res.send({
             "msg": "Hello world!!"
         })

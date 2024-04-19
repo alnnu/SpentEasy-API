@@ -3,17 +3,7 @@ import {Model} from "sequelize";
 
 const User = require("../models/UserModel")
 
-const create = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
-        const {email, name, lastName, password} = req.body
 
-        const user:Model =  await User.create({email,name,lastName,password})
-
-        res.status(201).json(user)
-    }catch (e) {
-        next(e)
-    }
-}
 
 const readOne = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try{
@@ -85,7 +75,6 @@ const deleteOne = async (req: Request, res: Response, next: NextFunction):Promis
 }
 
 module.exports = {
-    create,
     readOne,
     update,
     deleteOne

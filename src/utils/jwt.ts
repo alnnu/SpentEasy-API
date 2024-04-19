@@ -2,31 +2,30 @@ import "dotenv/config"
 
 const jwt = require("jsonwebtoken")
 
-const prefix: string = "Barear "
+const prefix: string = "Bearer "
 
 const timeToExpirate: string = '5h'
 
-const createToken = (email): string => {
-    return jwt.sign(email, process.env.TOKEN_SECRET, { expiresIN: timeToExpirate})
+const createToken = (email: string): string => {
+    return jwt.sign({email: email}, process.env.TOKEN_SECRET, { expiresIn: timeToExpirate })
 }
 
-const validToken = (token: string | undefined): string => {
-    if(token == undefined || token == "")
-        return ""
+const validToken = (token: string | undefined)=> {
+
+    if(token == null || token == "")
+        return null
 
     if(token.startsWith(prefix)) {
         const clearToken:string = token.slice(prefix.length)
-
-        jwt.verify(clearToken, process.env.TOKEN_SECRET, (err:any, user:string): string => {
-            if(err){
+        return jwt.verify(clearToken, process.env.TOKEN_SECRET as String, (err: any, user: string): string | null => {
+            if (err) {
                 console.log(err)
-                return ""
+                return null
             }
-
             return user
         })
     }else {
-        return ""
+        return null
     }
 }
 

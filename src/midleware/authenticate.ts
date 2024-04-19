@@ -5,10 +5,8 @@ const jwt = require("../utils/jwt")
 
 const authenticate = (req: Request, res: Response, next: NextFunction):void => {
     const token: string | undefined = req.headers["authorization"]
-    console.log(token)
-    const user = jwt.validToken(token)
-    console.log(user)
-    if(user == null) {
+    const userEmail = jwt.validToken(token)
+    if(userEmail == null ) {
         res.status(401).json({
             "msg": "Unauthorized"
         })

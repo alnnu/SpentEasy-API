@@ -10,8 +10,8 @@ export const createUser: ValidationChain[] = [
 ]
 
 export const loginUser: ValidationChain[] = [
-    body("email", "email not valid").notEmpty().isEmail(),
-    body("password", "minimum password length is 6 characters").notEmpty().isLength({min:6}),
+    body("email", "email not valid").isEmail(),
+    body("password", "minimum password length is 6 characters").isLength({ min: 5 }),
 ]
 
 export const valid = (req: Request) => {

@@ -1,11 +1,13 @@
 import {Sequelize} from "sequelize";
 
-const model  = require( "../models/UserModel");
+const UserModel  = require( "../models/UserModel");
+const ResetPasswordModel = require("../models/RestPasswordToken")
 const sequelize:Sequelize = require("./Sequelize")
 
 
    const init = async ():Promise<void> => {
-        await model.sync();
+        await UserModel.sync()
+        await ResetPasswordModel.sync()
     }
 
     const auth= async ():Promise<void> => {

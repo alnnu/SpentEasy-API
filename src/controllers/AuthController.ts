@@ -5,6 +5,8 @@ import { valid } from "../validators/userValidator"
 
 const User = require("../models/UserModel")
 
+const ResetPasswordToken = require("../models/RestPasswordToken")
+
 const jwt = require("../utils/jwt")
 
 const bcrypt = require("bcrypt")
@@ -58,6 +60,15 @@ const create = async (req: Request, res: Response, next: NextFunction): Promise<
         next(e)
     }
 }
+
+// const CreateResetPassword = async (req  : Request, res: Response, next: NextFunction): Promise<void> => {
+//     try {
+//         cost user
+//
+//     }catch (e) {
+//         next(e)
+//     }
+// }
 const login = (req: Request, res: Response): void => {
 
     const erros = valid(req)

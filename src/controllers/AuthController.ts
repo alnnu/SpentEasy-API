@@ -7,17 +7,40 @@ const User = require("../models/UserModel")
 
 const jwt = require("../utils/jwt")
 
+const bcrypt = require("bcrypt")
+const saltRounds = 10
+
 const create = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
 
         const errors = valid(req)
 
         if(errors.isEmpty()) {
-            const {email, name, lastName, password, passwordConfirm} = req.body
+            let {email, name, lastName, password, passwordConfirn} = req.body
 
-            const user:Model =  await User.create({email,name,lastName,password, passwordConfirm})
 
-            res.status(201).json(user)
+            password = await bcrypt
+                .genSalt(saltRounds)
+                .then((salt: any) => {
+                    return bcrypt.hash(password, salt)
+                })
+                .catch((err: any) => console.error(err.message))
+
+
+            if (await bcrypt.compare(passwordConfirn, password)) {
+                const user:Model =  await User.create({email,name,lastName,password, passwordConfirn})
+
+                res.status(201).json(user)
+            }else {
+                res.status(400).json({"errors": [
+                        {
+                            "type": "field",
+                            "msg": "password and password confirn need do equal",
+                            "location": "body"
+                        }
+                    ]})
+            }
+
         }else {
             res.status(400).json(errors)
         }

@@ -1,6 +1,8 @@
-import { Sequelize, DataTypes } from "sequelize";
+import {Sequelize, DataTypes, CreateOptions} from "sequelize";
 
 const db: Sequelize = require("../utils/Sequelize")
+
+
 
 const User = db.define('user',
     {
@@ -20,11 +22,6 @@ const User = db.define('user',
         },
 
         password: {
-            type: DataTypes.STRING,
-            allowNull: false
-        },
-
-        passwordConfirm: {
             type: DataTypes.STRING,
             allowNull: false
         }

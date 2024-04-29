@@ -14,8 +14,6 @@ const authenticate = (req: Request, res: Response, next: NextFunction):void => {
         next()
     }
 
-
-
 }
 
 module.exports = authenticate

@@ -18,24 +18,33 @@ const create = async (req: Request, res: Response, next: NextFunction): Promise<
         if(errors.isEmpty()) {
             let {email, name, lastName, password, passwordConfirn} = req.body
 
+            if(!await User.findByPk(email)) {
+                password = await bcrypt
+                    .genSalt(saltRounds)
+                    .then((salt: any) => {
+                        return bcrypt.hash(password, salt)
+                    })
+                    .catch((err: any) => console.error(err.message))
 
-            password = await bcrypt
-                .genSalt(saltRounds)
-                .then((salt: any) => {
-                    return bcrypt.hash(password, salt)
-                })
-                .catch((err: any) => console.error(err.message))
 
+                if (await bcrypt.compare(passwordConfirn, password)) {
+                    const user:Model =  await User.create({email,name,lastName,password})
 
-            if (await bcrypt.compare(passwordConfirn, password)) {
-                const user:Model =  await User.create({email,name,lastName,password, passwordConfirn})
-
-                res.status(201).json(user)
+                    res.status(201).json(user)
+                }else {
+                    res.status(400).json({"errors": [
+                            {
+                                "type": "field",
+                                "msg": "password and password confirn need do equal",
+                                "location": "body"
+                            }
+                        ]})
+                }
             }else {
                 res.status(400).json({"errors": [
                         {
                             "type": "field",
-                            "msg": "password and password confirn need do equal",
+                            "msg": "Email in use",
                             "location": "body"
                         }
                     ]})

@@ -1,4 +1,4 @@
-import {NextFunction, Request, Response} from "express";
+import {NextFunction, raw, Request, Response} from "express";
 import {Model} from "sequelize";
 
 import { valid } from "../validators/authValidator"
@@ -133,7 +133,7 @@ const resetPassword = async (req: Request, res: Response, next: NextFunction): P
                             password: password
                         })
 
-                        await user.save
+                        await user.save()
 
                         await resetToken.destroy()
 
@@ -169,13 +169,42 @@ const resetPassword = async (req: Request, res: Response, next: NextFunction): P
         next(e)
     }
 }
-const login = (req: Request, res: Response): void => {
+const login = async (req: Request, res: Response): Promise<void> => {
 
     const erros = valid(req)
 
     if (erros.isEmpty()) {
-        const token: string = jwt.createToken("luann")
-        res.status(200).json(token)
+
+        const { email, password } = req.body
+
+        const user: Model = await User.findByPk(email)
+
+        if (user) {
+            if (await bcrypt.compare(password, user.dataValues.password)) {
+                const token: string = jwt.createToken(email)
+                res.status(200).json({
+                    token: token
+                })
+            }else {
+                res.status(400).json({"errors": [
+                        {
+                            "type": "auth",
+                            "msg": "Email or password incorrect",
+                            "location": "body"
+                        }
+                    ]})
+            }
+        }else {
+            res.status(400).json({"errors": [
+                    {
+                        "type": "auth",
+                        "msg": "Email or password incorrect",
+                        "location": "body"
+                    }
+                ]})
+        }
+
+
     }else {
         res.status(400).json(erros)
     }

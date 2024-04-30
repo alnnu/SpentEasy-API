@@ -3,7 +3,6 @@ import {Sequelize, DataTypes, CreateOptions} from "sequelize";
 const db: Sequelize = require("../utils/Sequelize")
 
 
-
 const User = db.define('user',
     {
         email: {
@@ -26,5 +25,6 @@ const User = db.define('user',
             allowNull: false
         }
     })
+
 
 module.exports = User

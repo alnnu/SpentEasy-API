@@ -6,7 +6,7 @@ export const createUser: ValidationChain[] = [
     body("name", "name cant be empty").notEmpty(),
     body("lastName", "last name can not be empty").notEmpty(),
     body("password", "minimum password length is 6 characters").notEmpty().isLength({min:6}),
-    body("passwordConfirn", "passwordConfirn can not be empty").notEmpty()
+    body("passwordConfirm", "passwordConfirm can not be empty").notEmpty()
 ]
 
 export const loginUser: ValidationChain[] = [
@@ -17,7 +17,7 @@ export const loginUser: ValidationChain[] = [
 export const resetPassword: ValidationChain[] = [
     body("password", "password can not be empty").notEmpty(),
     body("password", "minimum password length is 6 characters").isLength({min:6}),
-    body("passwordConfirm", "passwordConfirn can not be empty").notEmpty()
+    body("passwordConfirm", "passwordConfirm can not be empty").notEmpty()
 ]
 
 export const createResetPasswordToken: ValidationChain[] = [

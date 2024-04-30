@@ -18,7 +18,7 @@ const create = async (req: Request, res: Response, next: NextFunction): Promise<
         const erros = valid(req)
 
         if(erros.isEmpty()) {
-            let {email, name, lastName, password, passwordConfirn} = req.body
+            let {email, name, lastName, password, passwordConfirm} = req.body
 
             if(!await User.findByPk(email)) {
                 password = await bcrypt
@@ -29,7 +29,7 @@ const create = async (req: Request, res: Response, next: NextFunction): Promise<
                     .catch((err: any) => console.error(err.message))
 
 
-                if (await bcrypt.compare(passwordConfirn, password)) {
+                if (await bcrypt.compare(passwordConfirm, password)) {
                     const user:Model =  await User.create({email,name,lastName,password})
 
                     res.status(201).json(user)
@@ -37,7 +37,7 @@ const create = async (req: Request, res: Response, next: NextFunction): Promise<
                     res.status(400).json({"errors": [
                             {
                                 "type": "field",
-                                "msg": "password and password confirn need do equal",
+                                "msg": "password and password confirm need do equal",
                                 "location": "body"
                             }
                         ]})

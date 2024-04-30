@@ -1,7 +1,7 @@
 import {NextFunction, Request, Response} from "express";
 import {Model} from "sequelize";
 
-import { valid } from "../validators/userValidator"
+import { valid } from "../validators/authValidator"
 
 const User = require("../models/UserModel")
 
@@ -15,9 +15,9 @@ const saltRounds = 10
 const create = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
 
-        const errors = valid(req)
+        const erros = valid(req)
 
-        if(errors.isEmpty()) {
+        if(erros.isEmpty()) {
             let {email, name, lastName, password, passwordConfirn} = req.body
 
             if(!await User.findByPk(email)) {
@@ -53,7 +53,7 @@ const create = async (req: Request, res: Response, next: NextFunction): Promise<
             }
 
         }else {
-            res.status(400).json(errors)
+            res.status(400).json(erros)
         }
 
     }catch (e) {
@@ -63,34 +63,41 @@ const create = async (req: Request, res: Response, next: NextFunction): Promise<
 
 const createResetPasswordToken = async (req  : Request, res: Response, next: NextFunction): Promise<void> => {
     try {
+        const erros = valid(req)
 
-        const { email } = req.body
+        if(erros.isEmpty()) {
+            const { email } = req.body
 
-        const user = await User.findByPk(email)
+            const user = await User.findByPk(email)
 
 
-        if(user) {
+            if(user) {
 
-            let token = await ResetPasswordToken.findOne({ where: { userEmail: user.email } })
+                let token = await ResetPasswordToken.findOne({ where: { userEmail: user.email } })
 
-            if(token) {
-                await token.destroy()
+                if(token) {
+                    await token.destroy()
+                }
+
+                token = await ResetPasswordToken.create({
+                    userEmail: user.email
+                })
+
+                res.status(201).json(token)
+            }else {
+                res.status(400).json({"errors": [
+                        {
+                            "type": "field",
+                            "msg": "Email not found",
+                            "location": "body"
+                        }
+                    ]})
             }
-
-            token = await ResetPasswordToken.create({
-                userEmail: user.email
-            })
-
-            res.status(201).json(token)
         }else {
-            res.status(400).json({"errors": [
-                    {
-                        "type": "field",
-                        "msg": "Email not found",
-                        "location": "body"
-                    }
-                ]})
+            res.status(400).json(erros)
         }
+
+
 
     }catch (e) {
         next(e)
@@ -99,55 +106,65 @@ const createResetPasswordToken = async (req  : Request, res: Response, next: Nex
 
 const resetPassword = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-        let { password, passwordConfirm } = req.body
-
-        const { token } = req.params
-
-        const resetToken = await ResetPasswordToken.findByPk(token)
+        const erros = valid(req)
 
 
-        if(resetToken) {
-            if(resetToken.ExpireData - resetToken.createdAt > 0) {
-                const user = await User.findByPk(resetToken.userEmail)
-                password = await bcrypt
-                    .genSalt(saltRounds)
-                    .then((salt: any) => {
-                        return bcrypt.hash(password, salt)
-                    })
-                    .catch((err: any) => console.error(err.message))
+        if(erros.isEmpty()) {
 
-                if(await bcrypt.compare(passwordConfirm, password)) {
-                    user.set({
-                        password: password
-                    })
+            let { password, passwordConfirm } = req.body
 
-                    await user.save
+            const { token } = req.params
 
+            const resetToken = await ResetPasswordToken.findByPk(token)
+
+
+            if(resetToken) {
+                if(resetToken.ExpireData - resetToken.createdAt > 0) {
+                    const user = await User.findByPk(resetToken.userEmail)
+                    password = await bcrypt
+                        .genSalt(saltRounds)
+                        .then((salt: any) => {
+                            return bcrypt.hash(password, salt)
+                        })
+                        .catch((err: any) => console.error(err.message))
+
+                    if(await bcrypt.compare(passwordConfirm, password)) {
+                        user.set({
+                            password: password
+                        })
+
+                        await user.save
+
+                        await resetToken.destroy()
+
+                        res.status(200).json({
+                            "msg": "User password updated"
+                        })
+                    }
+                }else {
                     await resetToken.destroy()
-
-                    res.status(200).json({
-                        "msg": "User password updated"
-                    })
+                    res.status(400).json({"errors": [
+                            {
+                                "type": "token",
+                                "msg": "Token expired",
+                                "location": "params"
+                            }
+                        ]})
                 }
             }else {
-                await resetToken.destroy()
                 res.status(400).json({"errors": [
                         {
                             "type": "token",
-                            "msg": "Token expired",
+                            "msg": "Token not found",
                             "location": "params"
                         }
                     ]})
             }
         }else {
-            res.status(400).json({"errors": [
-                    {
-                        "type": "token",
-                        "msg": "Token not found",
-                        "location": "params"
-                    }
-                ]})
+            res.status(400).json(erros)
         }
+
+
     }catch (e) {
         next(e)
     }

@@ -1,6 +1,6 @@
 import {Router} from "express";
 
-import { createUser, loginUser } from "../validators/userValidator";
+import { createUser, loginUser, createResetPasswordToken, resetPassword} from "../validators/authValidator";
 import {toUnicode} from "punycode";
 
 
@@ -15,8 +15,8 @@ routes.get(`${BaseRoute}/login`, loginUser, authController.login)
 
 routes.post(`${BaseRoute}/create`, createUser, authController.create)
 
-routes.post(`${BaseRoute}/create/passwordtoken`, authController.createResetPasswordToken)
+routes.post(`${BaseRoute}/create/passwordtoken`, createResetPasswordToken, authController.createResetPasswordToken)
 
-routes.post(`${BaseRoute}/resetpassword/:token`, authController.resetPassword)
+routes.post(`${BaseRoute}/resetpassword/:token`, resetPassword, authController.resetPassword)
 
 module.exports = routes

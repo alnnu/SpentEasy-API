@@ -1,7 +1,6 @@
 import {Router} from "express";
 
 import { createUser, loginUser, createResetPasswordToken, resetPassword} from "../validators/authValidator";
-import {toUnicode} from "punycode";
 
 
 

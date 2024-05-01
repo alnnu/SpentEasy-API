@@ -19,7 +19,7 @@ const PasswordToken = db.define("ResetPasswordToken",
 
     })
 
-PasswordToken.addHook('beforeCreate', async (Token, options) => {
+PasswordToken.addHook('beforeCreate', async (Token) => {
     Token.dataValues.ExpireData = new Date().getTime() + 60
     Token.dataValues.Token = randomUUID()
 })

@@ -1,4 +1,4 @@
-import {Sequelize, DataTypes, CreateOptions} from "sequelize";
+import {Sequelize, DataTypes} from "sequelize";
 
 const db: Sequelize = require("../utils/Sequelize")
 

@@ -1,4 +1,4 @@
-import {NextFunction, raw, Request, Response} from "express";
+import {NextFunction,  Request, Response} from "express";
 import {Model} from "sequelize";
 
 import { valid } from "../validators/authValidator"
@@ -11,7 +11,7 @@ const ValidateUserToken = require("../models/validateUserTokenModel")
 
 const jwt = require("../utils/jwt")
 
-const bcrypt = require("bcrypt")
+const {compare, genSalt, hash} = require("bcrypt")
 const saltRounds = 10
 
 const create = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -23,15 +23,14 @@ const create = async (req: Request, res: Response, next: NextFunction): Promise<
             let {email, name, lastName, password, passwordConfirm} = req.body
 
             if(!await User.findByPk(email)) {
-                password = await bcrypt
-                    .genSalt(saltRounds)
+                password = await genSalt(saltRounds)
                     .then((salt: any) => {
-                        return bcrypt.hash(password, salt)
+                        return hash(password, salt)
                     })
                     .catch((err: any) => console.error(err.message))
 
 
-                if (await bcrypt.compare(passwordConfirm, password)) {
+                if (await compare(passwordConfirm, password)) {
                     const user:Model =  await User.create({email,name,lastName,password})
 
                     await ValidateUserToken.create({userEmail: user.dataValues.email})
@@ -125,14 +124,13 @@ const resetPassword = async (req: Request, res: Response, next: NextFunction): P
             if(resetToken) {
                 if(resetToken.ExpireData - resetToken.createdAt > 0) {
                     const user = await User.findByPk(resetToken.userEmail)
-                    password = await bcrypt
-                        .genSalt(saltRounds)
+                    password = await genSalt(saltRounds)
                         .then((salt: any) => {
-                            return bcrypt.hash(password, salt)
+                            return hash(password, salt)
                         })
                         .catch((err: any) => console.error(err.message))
 
-                    if(await bcrypt.compare(passwordConfirm, password)) {
+                    if(await compare(passwordConfirm, password)) {
                         user.set({
                             password: password
                         })
@@ -182,8 +180,7 @@ const validUser = async (req: Request, res: Response, next: NextFunction): Promi
 
 
         if(validateToken) {
-            console.log(validateToken.ExpireData)
-            console.log(validateToken.dataValues.ExpireData)
+
 
             if(validateToken.ExpireData - validateToken.createdAt > 0) {
                 const user = await User.findByPk(validateToken.userEmail)
@@ -234,7 +231,7 @@ const login = async (req: Request, res: Response): Promise<void> => {
         const user: Model = await User.findByPk(email)
 
         if (user && user.dataValues.isValid == true) {
-            if (await bcrypt.compare(password, user.dataValues.password)) {
+            if (await compare(password, user.dataValues.password)) {
                 const token: string = jwt.createToken(email)
                 res.status(200).json({
                     token: token

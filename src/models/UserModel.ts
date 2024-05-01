@@ -23,6 +23,10 @@ const User = db.define('user',
         password: {
             type: DataTypes.STRING,
             allowNull: false
+        },
+        isValid: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: false
         }
     })
 

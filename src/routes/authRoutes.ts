@@ -17,6 +17,8 @@ routes.post(`${BaseRoute}/create`, createUser, authController.create)
 
 routes.post(`${BaseRoute}/create/passwordtoken`, createResetPasswordToken, authController.createResetPasswordToken)
 
-routes.post(`${BaseRoute}/resetpassword/:token`, resetPassword, authController.resetPassword)
+routes.put(`${BaseRoute}/resetpassword/:token`, resetPassword, authController.resetPassword)
+
+routes.put(`${BaseRoute}/validuser/:token`, authController.validUser)
 
 module.exports = routes

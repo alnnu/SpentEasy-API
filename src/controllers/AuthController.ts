@@ -5,7 +5,9 @@ import { valid } from "../validators/authValidator"
 
 const User = require("../models/UserModel")
 
-const ResetPasswordToken = require("../models/RestPasswordToken")
+const ResetPasswordToken = require("../models/RestPasswordTokenModel")
+
+const ValidateUserToken = require("../models/validateUserTokenModel")
 
 const jwt = require("../utils/jwt")
 
@@ -31,6 +33,8 @@ const create = async (req: Request, res: Response, next: NextFunction): Promise<
 
                 if (await bcrypt.compare(passwordConfirm, password)) {
                     const user:Model =  await User.create({email,name,lastName,password})
+
+                    await ValidateUserToken.create({userEmail: user.dataValues.email})
 
                     res.status(201).json(user)
                 }else {
@@ -169,6 +173,56 @@ const resetPassword = async (req: Request, res: Response, next: NextFunction): P
         next(e)
     }
 }
+
+const validUser = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+        const { token }= req.params
+
+        const validateToken = await ValidateUserToken.findByPk(token)
+
+
+        if(validateToken) {
+            console.log(validateToken.ExpireData)
+            console.log(validateToken.dataValues.ExpireData)
+
+            if(validateToken.ExpireData - validateToken.createdAt > 0) {
+                const user = await User.findByPk(validateToken.userEmail)
+
+
+                user.set({
+                    isValid: true
+                })
+
+                await user.save()
+
+                await validateToken.destroy()
+
+                res.status(200).json({
+                    "msg": "User was validated"
+                })
+            }else {
+                await validateToken.destroy()
+                res.status(400).json({"errors": [
+                        {
+                            "type": "token",
+                            "msg": "Token expired",
+                            "location": "params"
+                        }
+                    ]})
+            }
+        }else {
+            res.status(400).json({"errors": [
+                    {
+                        "type": "token",
+                        "msg": "Token not found",
+                        "location": "params"
+                    }
+                ]})
+        }
+    }catch (e) {
+        next(e)
+    }
+}
 const login = async (req: Request, res: Response): Promise<void> => {
 
     const erros = valid(req)
@@ -179,7 +233,7 @@ const login = async (req: Request, res: Response): Promise<void> => {
 
         const user: Model = await User.findByPk(email)
 
-        if (user) {
+        if (user && user.dataValues.isValid == true) {
             if (await bcrypt.compare(password, user.dataValues.password)) {
                 const token: string = jwt.createToken(email)
                 res.status(200).json({
@@ -214,5 +268,6 @@ module.exports = {
     create,
     createResetPasswordToken,
     resetPassword,
+    validUser,
     login
 }

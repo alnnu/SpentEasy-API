@@ -1,4 +1,4 @@
-import {DataTypes, DATE, Sequelize} from "sequelize"
+import {DataTypes, Sequelize} from "sequelize"
 import {randomUUID} from "node:crypto"
 
 const db: Sequelize = require("../utils/Sequelize")
@@ -17,7 +17,10 @@ const ValidateUserTokenModel = db.define("ValidateUserToken",
     })
 
 ValidateUserTokenModel.addHook("beforeCreate", (token) => {
-    token.dataValues.ExpireData = new Date().getTime() + 30
+    token.dataValues.ExpireData = new Date()
+
+
+    token.dataValues.ExpireData.setMinutes(new Date().getMinutes() + 30)
     token.dataValues.token = randomUUID()
     console.log(token)
 })

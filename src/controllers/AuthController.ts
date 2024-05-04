@@ -122,7 +122,7 @@ const resetPassword = async (req: Request, res: Response, next: NextFunction): P
 
 
             if(resetToken) {
-                if(resetToken.ExpireData - resetToken.createdAt > 0) {
+                if(resetToken.ExpireData.getTime() - new Date().getTime() > 0) {
                     const user = await User.findByPk(resetToken.userEmail)
                     password = await genSalt(saltRounds)
                         .then((salt: any) => {
@@ -182,7 +182,7 @@ const validUser = async (req: Request, res: Response, next: NextFunction): Promi
         if(validateToken) {
 
 
-            if(validateToken.ExpireData - validateToken.createdAt > 0) {
+            if(validateToken.ExpireData.getTime() - new Date().getTime() > 0) {
                 const user = await User.findByPk(validateToken.userEmail)
 
 

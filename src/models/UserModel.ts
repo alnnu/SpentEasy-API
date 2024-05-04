@@ -1,6 +1,7 @@
-import { Sequelize, DataTypes } from "sequelize";
+import {Sequelize, DataTypes} from "sequelize";
 
 const db: Sequelize = require("../utils/Sequelize")
+
 
 const User = db.define('user',
     {
@@ -22,7 +23,12 @@ const User = db.define('user',
         password: {
             type: DataTypes.STRING,
             allowNull: false
+        },
+        isValid: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: false
         }
     })
+
 
 module.exports = User

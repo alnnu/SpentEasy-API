@@ -5,7 +5,7 @@ const ResetPasswordModel = require("../models/RestPasswordTokenModel")
 const ValideteUserModel = require("../models/validateUserTokenModel")
 const sequelize:Sequelize = require("./Sequelize")
 
-const force = true
+const force = false
    const init = async ():Promise<void> => {
         await UserModel.sync({force: force})
         await ResetPasswordModel.sync({force: force})

@@ -1,7 +1,7 @@
 import {DataTypes} from "sequelize";
 
 const Extrato = require("./ExtratoModel")
-const db = require("sequelize")
+const db = require("../utils/Sequelize")
 
 const Transacao = db.define("trasacao",
     {
@@ -10,7 +10,7 @@ const Transacao = db.define("trasacao",
             primaryKey: true
         },
         value: {
-            type: DataTypes.NUMBER,
+            type: DataTypes.INTEGER,
             defaultValue: 0
         },
         type: {

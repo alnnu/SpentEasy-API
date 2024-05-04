@@ -2,7 +2,7 @@ import {DataTypes} from "sequelize";
 
 const User = require("./UserModel")
 
-const db = require("sequelize")
+const db = require("../utils/Sequelize")
 
 const Extrato = db.define("extrato",
     {
@@ -21,7 +21,7 @@ const Extrato = db.define("extrato",
             default: new Date().setMonth(new Date().getMonth() + 1)
         },
         total: {
-            type: DataTypes.NUMBER,
+            type: DataTypes.INTEGER,
             default: 0
         }
     })

@@ -22,7 +22,11 @@ const Transacao = db.define("trasacao",
             defaultValue: new Date()
         },
         tag: {
-            type: DataTypes.ENUM("transporte", "alimentação", "diverção","outros")
+            type: DataTypes.ENUM("transporte", "alimentação", "diverção","outros"),
+            allowNull: false
+        },
+        descrition: {
+            type: DataTypes.STRING
         }
     })
 

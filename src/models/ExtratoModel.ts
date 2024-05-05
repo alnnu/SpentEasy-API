@@ -5,6 +5,8 @@ import {before} from "node:test";
 
 const User = require("./UserModel")
 
+const Transacao = require("./Transacao")
+
 const db = require("../utils/Sequelize")
 
 const Extrato = db.define("extrato",
@@ -33,5 +35,7 @@ Extrato.addHook("beforeCreate", (extrato:any) => {
 })
 
 Extrato.belongsTo(User)
+
+Extrato.hasMany(Transacao)
 
 module.exports = Extrato

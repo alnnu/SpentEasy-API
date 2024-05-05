@@ -30,6 +30,5 @@ const Transacao = db.define("trasacao",
         }
     })
 
-Transacao.belongsTo(Extrato)
 
 module.exports = Transacao

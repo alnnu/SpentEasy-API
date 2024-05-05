@@ -7,6 +7,8 @@ const jwt = require( "../utils/jwt")
 
 const Extrato = require("../models/ExtratoModel")
 
+const Transacao = require("../models/Transacao")
+
 
 
 const create = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -16,6 +18,7 @@ const create = async (req: Request, res: Response, next: NextFunction): Promise<
 
 
         const extrato = await Extrato.create({userEmail: userEmail.email})
+
 
         res.status(201).json(extrato)
 
@@ -28,7 +31,11 @@ const readOne = async (req: Request, res: Response, next: NextFunction): Promise
     try {
         const {id} = req.params
 
-        const extrato = await Extrato.findByPk(id)
+        const extrato = await Extrato.findByPk(id,{
+            include: {
+                model: Transacao,
+            }
+        })
 
         if(extrato) {
             res.status(200).json(extrato)
@@ -54,6 +61,9 @@ const readAll = async (req: Request, res: Response, next: NextFunction): Promise
         const extratos = await Extrato.findAll({
                 where: {
                     userEmail: userEmail.email
+                },
+                include: {
+                    model: Transacao,
                 }
             })
 
@@ -70,7 +80,11 @@ const update = async (req: Request, res: Response, next: NextFunction): Promise<
         try {
             const {id} = req.params
 
-            let extrato = await Extrato.findByPk(id)
+            let extrato = await Extrato.findByPk(id, {
+                include: {
+                    model: Transacao,
+                }
+            })
 
             if(extrato) {
                 const {total} = req.body

@@ -1,9 +1,10 @@
 import {DataTypes} from "sequelize";
+import {randomUUID} from "node:crypto";
 
 const Extrato = require("./ExtratoModel")
 const db = require("../utils/Sequelize")
 
-const Transacao = db.define("trasacao",
+const TransacaoModel = db.define("trasacao",
     {
         id: {
             type: DataTypes.UUID,
@@ -19,7 +20,7 @@ const Transacao = db.define("trasacao",
         },
         date: {
             type: DataTypes.DATE,
-            defaultValue: new Date()
+
         },
         tag: {
             type: DataTypes.ENUM("transporte", "alimentação", "diverção","outros"),
@@ -30,5 +31,9 @@ const Transacao = db.define("trasacao",
         }
     })
 
+TransacaoModel.addHook("beforeCreate", (transacao: any) => {
+    transacao.dataValues.id = randomUUID()
+})
 
-module.exports = Transacao
+
+module.exports = TransacaoModel

@@ -3,7 +3,7 @@ import {Sequelize} from "sequelize";
 const UserModel  = require( "../models/UserModel");
 const ResetPasswordModel = require("../models/RestPasswordTokenModel")
 const ValideteUserModel = require("../models/validateUserTokenModel")
-const TransacaoModel = require("../models/Transacao")
+const TransacaoModel = require("../models/TransacaoModel")
 const ExtratoModel = require("../models/ExtratoModel")
 const sequelize:Sequelize = require("./Sequelize")
 

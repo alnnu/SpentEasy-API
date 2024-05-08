@@ -5,7 +5,7 @@ import {before} from "node:test";
 
 const User = require("./UserModel")
 
-const Transacao = require("./Transacao")
+const Transacao = require("./TransacaoModel")
 
 const db = require("../utils/Sequelize")
 

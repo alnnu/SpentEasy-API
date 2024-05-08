@@ -7,7 +7,7 @@ const jwt = require( "../utils/jwt")
 
 const Extrato = require("../models/ExtratoModel")
 
-const Transacao = require("../models/Transacao")
+const Transacao = require("../models/TransacaoModel")
 
 
 

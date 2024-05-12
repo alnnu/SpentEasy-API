@@ -1,41 +1,50 @@
-import {NextFunction, Request, Response} from "express";
-import {Model} from "sequelize";
-import {combineTableNames} from "sequelize/types/utils";
+import {NextFunction, Request, Response} from "express"
+import {Model} from "sequelize"
+
+import {valid} from "../validators/transacaoValidator"
 
 const jwt = require( "../utils/jwt")
+
 
 const Transacao = require("../models/TransacaoModel")
 const Extrato = require("../models/ExtratoModel")
 
 const create = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
-        const {extratoId, value, date, tag, type} = req.body
+    const errors = valid(req)
 
-        const extrato: Model = await Extrato.findByPk(extratoId)
+    if(errors.isEmpty()) {
+        try {
+            const {extratoId, value, date, tag, type} = req.body
+
+            const extrato: Model = await Extrato.findByPk(extratoId)
 
 
-        if(extrato) {
-            const transacao: Model = await Transacao.create({extratoId, value, date, tag, type})
-            extrato.set({
-                total: extrato.dataValues.total + value
-            })
+            if(extrato) {
+                const transacao: Model = await Transacao.create({extratoId, value, date, tag, type})
+                extrato.set({
+                    total: extrato.dataValues.total + value
+                })
 
-            await extrato.save()
+                await extrato.save()
 
-            res.status(201).json(transacao)
-        }else {
-            res.status(400).json({"errors": [
-                    {
-                        "type": "fild",
-                        "msg": "Record of extrato not found",
-                        "location": "body"
-                    }
-                ]})
+                res.status(201).json(transacao)
+            }else {
+                res.status(400).json({"errors": [
+                        {
+                            "type": "fild",
+                            "msg": "Record of extrato not found",
+                            "location": "body"
+                        }
+                    ]})
+            }
+
+        }catch (e) {
+            next(e)
         }
-
-    }catch (e) {
-        next(e)
+    }else {
+        res.status(400).json(errors)
     }
+
 }
 
 
@@ -73,39 +82,44 @@ const readAll = async (req: Request, res: Response, next: NextFunction): Promise
 }
 
 const update = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    const errors = valid(req)
+    if(errors.isEmpty()) {
+        try {
+            const {id} = req.params
 
-    try {
-        const {id} = req.params
+            let trasacao = await Transacao.findByPk(id)
 
-        let trasacao = await Transacao.findByPk(id)
+            if(trasacao) {
+                const {value, type, date, tag, descrition} = req.body
 
-        if(trasacao) {
-            const {value, type, date, tag, descrition} = req.body
+                const extrato = await Extrato.findByPk(trasacao.dataValues.extratoId)
 
-            const extrato = await Extrato.findByPk(trasacao.dataValues.extratoId)
+                extrato.set({
+                    total: (extrato.dataValues.total - trasacao.dataValues.value) + value
+                })
 
-            extrato.set({
-                total: (extrato.dataValues.total - trasacao.dataValues.value) + value
-            })
+                await extrato.save()
 
-            await extrato.save()
+                trasacao.set({value, type, date, tag, descrition})
+                trasacao = await trasacao.save()
 
-            trasacao.set({value, type, date, tag, descrition})
-            trasacao = await trasacao.save()
-
-            res.status(200).json(trasacao)
-        }else {
-            res.status(400).json({"errors": [
-                    {
-                        "type": "id",
-                        "msg": "Record not found",
-                        "location": "params"
-                    }
-                ]})
+                res.status(200).json(trasacao)
+            }else {
+                res.status(400).json({"errors": [
+                        {
+                            "type": "id",
+                            "msg": "Record not found",
+                            "location": "params"
+                        }
+                    ]})
+            }
+        }catch (e) {
+            next(e)
         }
-    }catch (e) {
-        next(e)
+    }else {
+        res.status(400).json(errors)
     }
+
 }
 
 const deleteOne = async (req: Request, res: Response, next: NextFunction): Promise<void> => {

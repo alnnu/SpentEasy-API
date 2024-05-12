@@ -15,7 +15,7 @@ const TransacaoModel = db.define("trasacao",
             defaultValue: 0
         },
         type: {
-            type: DataTypes.ENUM("cartão", "pix", "boleto", "dinhero", "outros"),
+            type: DataTypes.ENUM("cartao", "pix", "boleto", "dinhero", "outros"),
             allowNull: false
         },
         date: {

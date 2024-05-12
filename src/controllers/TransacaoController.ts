@@ -14,13 +14,14 @@ const create = async (req: Request, res: Response, next: NextFunction): Promise<
 
     if(errors.isEmpty()) {
         try {
-            const {extratoId, value, date, tag, type} = req.body
+            let {extratoId, value, date, tag, type, descrition} = req.body
 
             const extrato: Model = await Extrato.findByPk(extratoId)
 
+            value = value*100
 
             if(extrato) {
-                const transacao: Model = await Transacao.create({extratoId, value, date, tag, type})
+                const transacao: Model = await Transacao.create({extratoId, value, date, tag, type, descrition})
                 extrato.set({
                     total: extrato.dataValues.total + value
                 })
@@ -90,9 +91,11 @@ const update = async (req: Request, res: Response, next: NextFunction): Promise<
             let trasacao = await Transacao.findByPk(id)
 
             if(trasacao) {
-                const {value, type, date, tag, descrition} = req.body
+                let {value, type, date, tag, descrition} = req.body
 
                 const extrato = await Extrato.findByPk(trasacao.dataValues.extratoId)
+
+                value = value*100
 
                 extrato.set({
                     total: (extrato.dataValues.total - trasacao.dataValues.value) + value

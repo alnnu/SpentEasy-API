@@ -87,7 +87,9 @@ const update = async (req: Request, res: Response, next: NextFunction): Promise<
             })
 
             if(extrato) {
-                const {total} = req.body
+                let {total} = req.body
+
+                total = total*100
 
                 if(total) {
                     extrato.set({

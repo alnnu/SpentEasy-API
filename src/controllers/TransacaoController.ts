@@ -14,14 +14,14 @@ const create = async (req: Request, res: Response, next: NextFunction): Promise<
 
     if(errors.isEmpty()) {
         try {
-            let {extratoId, value, date, tag, type, descrition} = req.body
+            let {extratoId, value, date, tag, type, description} = req.body
 
             const extrato: Model = await Extrato.findByPk(extratoId)
 
             value = value*100
 
             if(extrato) {
-                const transacao: Model = await Transacao.create({extratoId, value, date, tag, type, descrition})
+                const transacao: Model = await Transacao.create({extratoId, value, date, tag, type, description})
                 extrato.set({
                     total: extrato.dataValues.total + value
                 })
@@ -91,7 +91,7 @@ const update = async (req: Request, res: Response, next: NextFunction): Promise<
             let trasacao = await Transacao.findByPk(id)
 
             if(trasacao) {
-                let {value, type, date, tag, descrition} = req.body
+                let {value, type, date, tag, description} = req.body
 
                 const extrato = await Extrato.findByPk(trasacao.dataValues.extratoId)
 
@@ -103,7 +103,7 @@ const update = async (req: Request, res: Response, next: NextFunction): Promise<
 
                 await extrato.save()
 
-                trasacao.set({value, type, date, tag, descrition})
+                trasacao.set({value, type, date, tag, description})
                 trasacao = await trasacao.save()
 
                 res.status(200).json(trasacao)

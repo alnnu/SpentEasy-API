@@ -26,7 +26,7 @@ const TransacaoModel = db.define("trasacao",
             type: DataTypes.ENUM("transporte", "alimentação", "diverção","outros"),
             allowNull: false
         },
-        descrition: {
+        description: {
             type: DataTypes.STRING
         }
     })

@@ -2,8 +2,6 @@ import {Router} from "express";
 
 import { createUser, loginUser, createResetPasswordToken, resetPassword} from "../validators/authValidator";
 
-
-
 const routes : Router = Router()
 
 const authController = require("../controllers/AuthController")

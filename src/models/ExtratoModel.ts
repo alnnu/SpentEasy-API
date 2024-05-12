@@ -36,6 +36,8 @@ Extrato.addHook("beforeCreate", (extrato:any) => {
 
 Extrato.belongsTo(User)
 
-Extrato.hasMany(Transacao)
+Extrato.hasMany(Transacao, {
+    onDelete: 'CASCADE'
+})
 
 module.exports = Extrato

@@ -6,6 +6,7 @@ const User = require("../models/UserModel")
 
 
 const readOne = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+
     try{
         const {email}= req.params
 
@@ -26,6 +27,7 @@ const readOne = async (req: Request, res: Response, next: NextFunction): Promise
 
 
 const update = async (req: Request, res: Response, next: NextFunction) => {
+
     try {
         const {email} = req.params
 
@@ -53,6 +55,7 @@ const update = async (req: Request, res: Response, next: NextFunction) => {
 }
 
 const deleteOne = async (req: Request, res: Response, next: NextFunction):Promise<void> => {
+
     try {
         const { email } = req.params
 

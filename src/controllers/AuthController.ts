@@ -65,6 +65,7 @@ const create = async (req: Request, res: Response, next: NextFunction): Promise<
 }
 
 const createResetPasswordToken = async (req  : Request, res: Response, next: NextFunction): Promise<void> => {
+
     try {
         const erros = valid(req)
 
@@ -108,6 +109,7 @@ const createResetPasswordToken = async (req  : Request, res: Response, next: Nex
 }
 
 const resetPassword = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+
     try {
         const erros = valid(req)
 
@@ -173,6 +175,7 @@ const resetPassword = async (req: Request, res: Response, next: NextFunction): P
 }
 
 const validUser = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+
     try {
         const { token }= req.params
 

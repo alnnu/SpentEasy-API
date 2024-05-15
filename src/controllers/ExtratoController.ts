@@ -54,6 +54,7 @@ const readOne = async (req: Request, res: Response, next: NextFunction): Promise
 }
 
 const readAll = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+
     try {
         const token: string | undefined = req.headers["authorization"]
         const userEmail = jwt.validToken(token)
@@ -74,6 +75,7 @@ const readAll = async (req: Request, res: Response, next: NextFunction): Promise
 }
 
 const update = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+
     const errors = valid(req)
 
     if(errors.isEmpty()){
@@ -117,6 +119,7 @@ const update = async (req: Request, res: Response, next: NextFunction): Promise<
 }
 
 const deleteOne = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+
     try {
         const {id} = req.params
 

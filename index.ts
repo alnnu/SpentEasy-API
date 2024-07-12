@@ -1,7 +1,8 @@
 import express, {Express, Request, Response, Router} from "express"
 
-
 import 'dotenv/config'
+
+const cors = require('cors')
 
 const router: Router = require("./src/routes/index.ts")
 
@@ -15,6 +16,11 @@ app.use(express.json())
 
 app.use(express.urlencoded({
     extended: false
+}))
+
+
+app.use(cors({
+    origin: '*'
 }))
 
 //init router

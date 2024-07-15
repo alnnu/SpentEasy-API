@@ -7,7 +7,6 @@ const cors = require('cors')
 const router: Router = require("./src/routes/index.ts")
 
 const app: Express = express();
-
 const db = require("./src/utils/db")
 
 const port = process.env.PORT;

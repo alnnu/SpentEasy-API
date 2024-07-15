@@ -10,6 +10,7 @@ const Transacao = require("../models/TransacaoModel")
 const Extrato = require("../models/ExtratoModel")
 
 const create = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+
     const errors = valid(req)
 
     if(errors.isEmpty()) {
@@ -50,6 +51,7 @@ const create = async (req: Request, res: Response, next: NextFunction): Promise<
 
 
 const readOne = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+
     try {
         const {id} = req.params
 
@@ -72,6 +74,7 @@ const readOne = async (req: Request, res: Response, next: NextFunction): Promise
 }
 
 const readAll = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+
     try {
 
         const trasacao = await Transacao.findAll()
@@ -83,6 +86,7 @@ const readAll = async (req: Request, res: Response, next: NextFunction): Promise
 }
 
 const update = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+
     const errors = valid(req)
     if(errors.isEmpty()) {
         try {
@@ -126,6 +130,7 @@ const update = async (req: Request, res: Response, next: NextFunction): Promise<
 }
 
 const deleteOne = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+
     try {
         const {id} = req.params
 

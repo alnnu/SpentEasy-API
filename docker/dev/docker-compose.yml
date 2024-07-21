@@ -10,7 +10,7 @@ services:
     volumes:
       - ../../:/app
     ports:
-      - "3000:3000"
+      - "3080:3080"
   db:
     container_name: "SpentEasy-db"
     image: postgres

@@ -16,7 +16,7 @@ const authenticate = async (req: Request, res: Response, next: NextFunction):Pro
         }else {
             const user = await User.findByPk(userEmail.email)
 
-            if (user.dataValues.isValid) {
+            if (user) {
                 next()
             } else {
                 res.status(401).json({

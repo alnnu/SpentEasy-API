@@ -1,13 +1,11 @@
-import {NextFunction,  Request, Response} from "express";
+import {NextFunction, Request, Response} from "express";
 import {Model} from "sequelize";
 
-import { valid } from "../validators/authValidator"
+import {valid} from "../validators/authValidator"
 
 const User = require("../models/UserModel")
 
 const ResetPasswordToken = require("../models/RestPasswordTokenModel")
-
-const ValidateUserToken = require("../models/validateUserTokenModel")
 
 const jwt = require("../utils/jwt")
 
@@ -19,10 +17,10 @@ const create = async (req: Request, res: Response, next: NextFunction): Promise<
 
         const erros = valid(req)
 
-        if(erros.isEmpty()) {
+        if (erros.isEmpty()) {
             let {email, name, lastName, password, passwordConfirm} = req.body
 
-            if(!await User.findByPk(email)) {
+            if (!await User.findByPk(email)) {
                 password = await genSalt(saltRounds)
                     .then((salt: any) => {
                         return hash(password, salt)
@@ -31,55 +29,57 @@ const create = async (req: Request, res: Response, next: NextFunction): Promise<
 
 
                 if (await compare(passwordConfirm, password)) {
-                    const user:Model =  await User.create({email,name,lastName,password})
-
-                    await ValidateUserToken.create({userEmail: user.dataValues.email})
+                    const user: Model = await User.create({email, name, lastName, password})
 
                     res.status(201).json(user)
-                }else {
-                    res.status(400).json({"errors": [
+                } else {
+                    res.status(400).json({
+                        "errors": [
                             {
                                 "type": "field",
                                 "msg": "password and password confirm need do equal",
                                 "location": "body"
                             }
-                        ]})
+                        ]
+                    })
                 }
-            }else {
-                res.status(400).json({"errors": [
+            } else {
+                res.status(400).json({
+                    "errors": [
                         {
                             "type": "field",
                             "msg": "Email in use",
                             "location": "body"
                         }
-                    ]})
+                    ]
+                })
             }
 
-        }else {
+        } else {
             res.status(400).json(erros)
         }
 
-    }catch (e) {
+    } catch (e) {
         next(e)
     }
 }
 
-const createResetPasswordToken = async (req  : Request, res: Response, next: NextFunction): Promise<void> => {
+const createResetPasswordToken = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
 
     try {
         const erros = valid(req)
 
-        if(erros.isEmpty()) {
-            const { email } = req.body
+        if (erros.isEmpty()) {
+            const {email} = req.body
 
             const user = await User.findByPk(email)
 
 
-            if(user) {
+            if (user) {
 
-                let token = await ResetPasswordToken.findOne({ where: { userEmail: user.email } })
+                let token = await ResetPasswordToken.findOne({where: {userEmail: user.email}})
 
-                if(token) {
+                if (token) {
                     await token.destroy()
                 }
 
@@ -88,22 +88,23 @@ const createResetPasswordToken = async (req  : Request, res: Response, next: Nex
                 })
 
                 res.status(201).json(token)
-            }else {
-                res.status(400).json({"errors": [
+            } else {
+                res.status(400).json({
+                    "errors": [
                         {
                             "type": "field",
                             "msg": "Email not found",
                             "location": "body"
                         }
-                    ]})
+                    ]
+                })
             }
-        }else {
+        } else {
             res.status(400).json(erros)
         }
 
 
-
-    }catch (e) {
+    } catch (e) {
         next(e)
     }
 }
@@ -114,17 +115,17 @@ const resetPassword = async (req: Request, res: Response, next: NextFunction): P
         const erros = valid(req)
 
 
-        if(erros.isEmpty()) {
+        if (erros.isEmpty()) {
 
-            let { password, passwordConfirm } = req.body
+            let {password, passwordConfirm} = req.body
 
-            const { token } = req.params
+            const {token} = req.params
 
             const resetToken = await ResetPasswordToken.findByPk(token)
 
 
-            if(resetToken) {
-                if(resetToken.ExpireData.getTime() - new Date().getTime() > 0) {
+            if (resetToken) {
+                if (resetToken.ExpireData.getTime() - new Date().getTime() > 0) {
                     const user = await User.findByPk(resetToken.userEmail)
                     password = await genSalt(saltRounds)
                         .then((salt: any) => {
@@ -132,7 +133,7 @@ const resetPassword = async (req: Request, res: Response, next: NextFunction): P
                         })
                         .catch((err: any) => console.error(err.message))
 
-                    if(await compare(passwordConfirm, password)) {
+                    if (await compare(passwordConfirm, password)) {
                         user.set({
                             password: password
                         })
@@ -145,121 +146,82 @@ const resetPassword = async (req: Request, res: Response, next: NextFunction): P
                             "msg": "User password updated"
                         })
                     }
-                }else {
+                } else {
                     await resetToken.destroy()
-                    res.status(400).json({"errors": [
+                    res.status(400).json({
+                        "errors": [
                             {
                                 "type": "token",
                                 "msg": "Token expired",
                                 "location": "params"
                             }
-                        ]})
+                        ]
+                    })
                 }
-            }else {
-                res.status(400).json({"errors": [
+            } else {
+                res.status(400).json({
+                    "errors": [
                         {
                             "type": "token",
                             "msg": "Token not found",
                             "location": "params"
                         }
-                    ]})
+                    ]
+                })
             }
-        }else {
+        } else {
             res.status(400).json(erros)
         }
 
 
-    }catch (e) {
+    } catch (e) {
         next(e)
     }
 }
 
-const validUser = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-
-    try {
-        const { token }= req.params
-
-        const validateToken = await ValidateUserToken.findByPk(token)
-
-
-        if(validateToken) {
-
-
-            if(validateToken.ExpireData.getTime() - new Date().getTime() > 0) {
-                const user = await User.findByPk(validateToken.userEmail)
-
-
-                user.set({
-                    isValid: true
-                })
-
-                await user.save()
-
-                await validateToken.destroy()
-
-                res.status(200).json({
-                    "msg": "User was validated"
-                })
-            }else {
-                await validateToken.destroy()
-                res.status(400).json({"errors": [
-                        {
-                            "type": "token",
-                            "msg": "Token expired",
-                            "location": "params"
-                        }
-                    ]})
-            }
-        }else {
-            res.status(400).json({"errors": [
-                    {
-                        "type": "token",
-                        "msg": "Token not found",
-                        "location": "params"
-                    }
-                ]})
-        }
-    }catch (e) {
-        next(e)
-    }
-}
 const login = async (req: Request, res: Response): Promise<void> => {
 
     const erros = valid(req)
 
     if (erros.isEmpty()) {
 
-        const { email, password } = req.body
+        const {email, password} = req.body
 
         const user: Model = await User.findByPk(email)
 
-        if (user && user.dataValues.isValid == true) {
+        if (user) {
             if (await compare(password, user.dataValues.password)) {
                 const token: string = jwt.createToken(email)
                 res.status(200).json({
+                    email: user.dataValues.email,
+                    name: user.dataValues.name,
                     token: token
                 })
-            }else {
-                res.status(400).json({"errors": [
+            } else {
+                res.status(400).json({
+                    "errors": [
                         {
                             "type": "auth",
                             "msg": "Email or password incorrect",
                             "location": "body"
                         }
-                    ]})
+                    ]
+                })
             }
-        }else {
-            res.status(400).json({"errors": [
+        } else {
+            res.status(400).json({
+                "errors": [
                     {
                         "type": "auth",
                         "msg": "Email or password incorrect",
                         "location": "body"
                     }
-                ]})
+                ]
+            })
         }
 
 
-    }else {
+    } else {
         res.status(400).json(erros)
     }
 }
@@ -268,6 +230,5 @@ module.exports = {
     create,
     createResetPasswordToken,
     resetPassword,
-    validUser,
     login
 }

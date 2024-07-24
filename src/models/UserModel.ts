@@ -24,9 +24,9 @@ const User = db.define('user',
             type: DataTypes.STRING,
             allowNull: false
         },
-        isValid: {
+        isActivated: {
             type: DataTypes.BOOLEAN,
-            defaultValue: false
+            defaultValue: true
         }
     })
 

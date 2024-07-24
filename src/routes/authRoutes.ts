@@ -16,6 +16,4 @@ routes.post(`${BaseRoute}/create/passwordtoken`, createResetPasswordToken, authC
 
 routes.put(`${BaseRoute}/resetpassword/:token`, resetPassword, authController.resetPassword)
 
-routes.put(`${BaseRoute}/validuser/:token`, authController.validUser)
-
 module.exports = routes

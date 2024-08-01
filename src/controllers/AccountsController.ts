@@ -9,42 +9,67 @@ const readAll = async (req: Request, res: Response, next: NextFunction): Promise
         const token: string | undefined = req.headers["authorization"]
         const user = jwt.validToken(token)
 
-        const account = await accountModel.findAll({where: {
+        const account = await accountModel.findAll({
+            where: {
                 userEmail: user.email
-            }})
+            }
+        })
 
-        if(account) {
+        if (account) {
             res.status(200).json(account)
-        }else {
-            res.status(400).json({"errors": [
+        } else {
+            res.status(400).json({
+                "errors": [
                     {
                         "type": "id",
                         "msg": "Record not found",
                         "location": "params"
                     }
-                ]})
+                ]
+            })
         }
     } catch (e) {
         next(e)
     }
 }
 
-const create = async (req: Request, res: Response, next: NextFunction ): Promise<void> => {
+const create = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
         const token: string | undefined = req.headers["authorization"]
         const user = jwt.validToken(token)
 
         const {name} = req.body
 
-        const account = await accountModel.create({ name:name, userEmail: user.email})
+        const account = await accountModel.create({name: name, userEmail: user.email})
 
         res.status(201).json(account)
-    }catch (e) {
+    } catch (e) {
+        next(e)
+    }
+}
+
+const deleteAll = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+        const {accounts} = req.body
+        console.log(accounts)
+        let model
+
+        for (const account of accounts) {
+            model = await accountModel.findByPk(account.id)
+            if (model) {
+                await model.destroy()
+            }
+        }
+        res.status(200).json({
+            "msg": "extrato deleted"
+        })
+    } catch (e) {
         next(e)
     }
 }
 
 module.exports = {
     readAll,
-    create
+    create,
+    deleteAll
 }

@@ -7,34 +7,47 @@ const jwt = require( "../utils/jwt")
 
 
 const Transacao = require("../models/TransacaoModel")
-const Extrato = require("../models/ExtratoModel")
+const Account = require("../models/AccountModel")
+const Category = require("../models/CategoriesModel")
 
+const Jwt = require("../utils/jwt")
 const create = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
 
     const errors = valid(req)
 
     if(errors.isEmpty()) {
         try {
-            let {extratoId, value, date, tag, type, description} = req.body
+            let {accountId, categoryId, value, date, description} = req.body
 
-            const extrato: Model = await Extrato.findByPk(extratoId)
+
+            const token: string | undefined = req.headers["authorization"]
+            const user = jwt.validToken(token)
+
+            const account: Model = await Account.findByPk(accountId)
+            const category: Model = await Category.findByPk(categoryId)
+
 
             value = value*100
 
-            if(extrato) {
-                const transacao: Model = await Transacao.create({extratoId, value, date, tag, type, description})
-                extrato.set({
-                    total: extrato.dataValues.total + value
-                })
+            if(account && account.dataValues.userEmail == user.email) {
+                if(category && category.dataValues.userEmail == user.email) {
+                    const transacao: Model = await Transacao.create({accountId, categoryId, value, date, description})
 
-                await extrato.save()
-
-                res.status(201).json(transacao)
+                    res.status(201).json(transacao)
+                }else {
+                    res.status(400).json({"errors": [
+                            {
+                                "type": "fild",
+                                "msg": "Record of category not found",
+                                "location": "body"
+                            }
+                        ]})
+                }
             }else {
                 res.status(400).json({"errors": [
                         {
                             "type": "fild",
-                            "msg": "Record of extrato not found",
+                            "msg": "Record of account not found",
                             "location": "body"
                         }
                     ]})
@@ -52,10 +65,18 @@ const create = async (req: Request, res: Response, next: NextFunction): Promise<
 
 const readOne = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
 
+    const token: string | undefined = req.headers["authorization"]
+    const user = jwt.validToken(token)
+
     try {
         const {id} = req.params
 
-        const trasacao:Model = await Transacao.findByPk(id)
+        const trasacao:Model = await Transacao.findByPk(id, {
+            include: ['account'],
+            where: {
+                '$account.userEmail$': user.email
+            }
+        })
 
         if(trasacao) {
             res.status(200).json(trasacao)
@@ -75,9 +96,17 @@ const readOne = async (req: Request, res: Response, next: NextFunction): Promise
 
 const readAll = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
 
+    const token: string | undefined = req.headers["authorization"]
+    const user = jwt.validToken(token)
+
     try {
 
-        const trasacao = await Transacao.findAll()
+        const trasacao = await Transacao.findAll({
+            include: ['account', 'category'],
+            where: {
+                '$account.userEmail$': user.email
+            }
+        })
 
         res.status(200).json(trasacao)
     }catch (e) {
@@ -95,22 +124,45 @@ const update = async (req: Request, res: Response, next: NextFunction): Promise<
             let trasacao = await Transacao.findByPk(id)
 
             if(trasacao) {
-                let {value, type, date, tag, description} = req.body
+                let {value, date, description, accountId, categoryId} = req.body
 
-                const extrato = await Extrato.findByPk(trasacao.dataValues.extratoId)
+                const token: string | undefined = req.headers["authorization"]
+                const user = jwt.validToken(token)
 
-                value = value*100
+                const account: Model = await Account.findByPk(accountId)
+                const category: Model = await Category.findByPk(categoryId)
 
-                extrato.set({
-                    total: (extrato.dataValues.total - trasacao.dataValues.value) + value
-                })
 
-                await extrato.save()
+                if(account && account.dataValues.userEmail == user.email) {
+                    if(category && category.dataValues.userEmail == user.email) {
+                        value = value*100
 
-                trasacao.set({value, type, date, tag, description})
-                trasacao = await trasacao.save()
 
-                res.status(200).json(trasacao)
+
+                        trasacao.set({value, date, description, accountId, categoryId })
+                        trasacao = await trasacao.save()
+
+                        res.status(200).json(trasacao)
+                    }else {
+                        res.status(400).json({"errors": [
+                                {
+                                    "type": "fild",
+                                    "msg": "Record of category not found",
+                                    "location": "body"
+                                }
+                            ]})
+                    }
+                }else {
+                    res.status(400).json({"errors": [
+                            {
+                                "type": "fild",
+                                "msg": "Record of account not found",
+                                "location": "body"
+                            }
+                        ]})
+                }
+
+
             }else {
                 res.status(400).json({"errors": [
                         {
@@ -137,14 +189,6 @@ const deleteOne = async (req: Request, res: Response, next: NextFunction): Promi
         const trasacao = await Transacao.findByPk(id)
 
         if(trasacao){
-
-            const extrato = await Extrato.findByPk(trasacao.dataValues.extratoId)
-
-            extrato.set({
-                total: extrato.dataValues.total - trasacao.dataValues.value
-            })
-
-            await extrato.save()
 
             await trasacao.destroy()
 

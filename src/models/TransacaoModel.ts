@@ -1,8 +1,11 @@
 import {DataTypes} from "sequelize";
 import {randomUUID} from "node:crypto";
 
-const Extrato = require("./ExtratoModel")
 const db = require("../utils/Sequelize")
+
+const categoryModel = require("./CategoriesModel")
+const accountModel = require("./AccountModel")
+
 
 const TransacaoModel = db.define("trasacao",
     {
@@ -14,17 +17,9 @@ const TransacaoModel = db.define("trasacao",
             type: DataTypes.INTEGER,
             defaultValue: 0
         },
-        type: {
-            type: DataTypes.ENUM("cartao", "pix", "boleto", "dinhero", "outros"),
-            allowNull: false
-        },
         date: {
             type: DataTypes.DATE,
 
-        },
-        tag: {
-            type: DataTypes.ENUM("transporte", "alimentação", "diverção","outros"),
-            allowNull: false
         },
         description: {
             type: DataTypes.STRING
@@ -34,6 +29,9 @@ const TransacaoModel = db.define("trasacao",
 TransacaoModel.addHook("beforeCreate", (transacao: any) => {
     transacao.dataValues.id = randomUUID()
 })
+
+TransacaoModel.belongsTo(accountModel)
+TransacaoModel.belongsTo(categoryModel)
 
 
 module.exports = TransacaoModel

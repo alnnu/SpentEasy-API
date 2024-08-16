@@ -3,21 +3,20 @@ import {Model} from "sequelize"
 
 import {valid} from "../validators/transacaoValidator"
 
-const jwt = require( "../utils/jwt")
+const jwt = require("../utils/jwt")
 
 
 const Transacao = require("../models/TransacaoModel")
 const Account = require("../models/AccountModel")
 const Category = require("../models/CategoriesModel")
 
-const Jwt = require("../utils/jwt")
 const create = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
 
     const errors = valid(req)
 
-    if(errors.isEmpty()) {
+    if (errors.isEmpty()) {
         try {
-            let {accountId, categoryId, value, date, description} = req.body
+            let {accountId, categoryId, value, date, description, isExpense} = req.body
 
 
             const token: string | undefined = req.headers["authorization"]
@@ -27,36 +26,47 @@ const create = async (req: Request, res: Response, next: NextFunction): Promise<
             const category: Model = await Category.findByPk(categoryId)
 
 
-            value = value*100
+            value = value * 100
 
-            if(account && account.dataValues.userEmail == user.email) {
-                if(category && category.dataValues.userEmail == user.email) {
-                    const transacao: Model = await Transacao.create({accountId, categoryId, value, date, description})
+            if (account && account.dataValues.userEmail == user.email) {
+                if (category && category.dataValues.userEmail == user.email) {
+                    const transacao: Model = await Transacao.create({
+                        accountId,
+                        categoryId,
+                        value,
+                        date,
+                        description,
+                        isExpense
+                    })
 
                     res.status(201).json(transacao)
-                }else {
-                    res.status(400).json({"errors": [
+                } else {
+                    res.status(400).json({
+                        "errors": [
                             {
                                 "type": "fild",
                                 "msg": "Record of category not found",
                                 "location": "body"
                             }
-                        ]})
+                        ]
+                    })
                 }
-            }else {
-                res.status(400).json({"errors": [
+            } else {
+                res.status(400).json({
+                    "errors": [
                         {
                             "type": "fild",
                             "msg": "Record of account not found",
                             "location": "body"
                         }
-                    ]})
+                    ]
+                })
             }
 
-        }catch (e) {
+        } catch (e) {
             next(e)
         }
-    }else {
+    } else {
         res.status(400).json(errors)
     }
 
@@ -71,25 +81,27 @@ const readOne = async (req: Request, res: Response, next: NextFunction): Promise
     try {
         const {id} = req.params
 
-        const trasacao:Model = await Transacao.findByPk(id, {
+        const trasacao: Model = await Transacao.findByPk(id, {
             include: ['account'],
             where: {
                 '$account.userEmail$': user.email
             }
         })
 
-        if(trasacao) {
+        if (trasacao) {
             res.status(200).json(trasacao)
-        }else {
-            res.status(400).json({"errors": [
+        } else {
+            res.status(400).json({
+                "errors": [
                     {
                         "type": "id",
                         "msg": "Record not found",
                         "location": "params"
                     }
-                ]})
+                ]
+            })
         }
-    }catch (e) {
+    } catch (e) {
         next(e)
     }
 }
@@ -109,7 +121,7 @@ const readAll = async (req: Request, res: Response, next: NextFunction): Promise
         })
 
         res.status(200).json(trasacao)
-    }catch (e) {
+    } catch (e) {
         next(e)
     }
 }
@@ -117,14 +129,14 @@ const readAll = async (req: Request, res: Response, next: NextFunction): Promise
 const update = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
 
     const errors = valid(req)
-    if(errors.isEmpty()) {
+    if (errors.isEmpty()) {
         try {
             const {id} = req.params
 
             let trasacao = await Transacao.findByPk(id)
 
-            if(trasacao) {
-                let {value, date, description, accountId, categoryId} = req.body
+            if (trasacao) {
+                let {value, date, description, accountId, categoryId, isExpense} = req.body
 
                 const token: string | undefined = req.headers["authorization"]
                 const user = jwt.validToken(token)
@@ -133,49 +145,54 @@ const update = async (req: Request, res: Response, next: NextFunction): Promise<
                 const category: Model = await Category.findByPk(categoryId)
 
 
-                if(account && account.dataValues.userEmail == user.email) {
-                    if(category && category.dataValues.userEmail == user.email) {
-                        value = value*100
+                if (account && account.dataValues.userEmail == user.email) {
+                    if (category && category.dataValues.userEmail == user.email) {
+                        value = value * 100
 
 
-
-                        trasacao.set({value, date, description, accountId, categoryId })
+                        trasacao.set({value, date, description, accountId, categoryId, isExpense})
                         trasacao = await trasacao.save()
 
                         res.status(200).json(trasacao)
-                    }else {
-                        res.status(400).json({"errors": [
+                    } else {
+                        res.status(400).json({
+                            "errors": [
                                 {
                                     "type": "fild",
                                     "msg": "Record of category not found",
                                     "location": "body"
                                 }
-                            ]})
+                            ]
+                        })
                     }
-                }else {
-                    res.status(400).json({"errors": [
+                } else {
+                    res.status(400).json({
+                        "errors": [
                             {
                                 "type": "fild",
                                 "msg": "Record of account not found",
                                 "location": "body"
                             }
-                        ]})
+                        ]
+                    })
                 }
 
 
-            }else {
-                res.status(400).json({"errors": [
+            } else {
+                res.status(400).json({
+                    "errors": [
                         {
                             "type": "id",
                             "msg": "Record not found",
                             "location": "params"
                         }
-                    ]})
+                    ]
+                })
             }
-        }catch (e) {
+        } catch (e) {
             next(e)
         }
-    }else {
+    } else {
         res.status(400).json(errors)
     }
 
@@ -188,23 +205,25 @@ const deleteOne = async (req: Request, res: Response, next: NextFunction): Promi
 
         const trasacao = await Transacao.findByPk(id)
 
-        if(trasacao){
+        if (trasacao) {
 
             await trasacao.destroy()
 
             res.status(200).json({
                 "msg": "trasacao deleted"
             })
-        }else {
-            res.status(404).json({"errors": [
+        } else {
+            res.status(404).json({
+                "errors": [
                     {
                         "type": "id",
                         "msg": "Record not found",
                         "location": "params"
                     }
-                ]})
+                ]
+            })
         }
-    }catch (e) {
+    } catch (e) {
         next(e)
     }
 }

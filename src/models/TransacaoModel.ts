@@ -17,6 +17,10 @@ const TransacaoModel = db.define("trasacao",
             type: DataTypes.INTEGER,
             defaultValue: 0
         },
+        isExpense: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: false
+        },
         date: {
             type: DataTypes.DATE,
 

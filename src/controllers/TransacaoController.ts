@@ -198,33 +198,31 @@ const update = async (req: Request, res: Response, next: NextFunction): Promise<
 
 }
 
-const deleteOne = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+const deleteAll = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
 
-    try {
-        const {id} = req.params
+    const error = valid(req)
 
-        const trasacao = await Transacao.findByPk(id)
+    if (error.isEmpty()) {
+        try {
+            const {transactions} = req.body
 
-        if (trasacao) {
+            let model
 
-            await trasacao.destroy()
-
+            for (const transaction of transactions) {
+                model = await Transacao.findByPk(transaction.id)
+                console.log(model)
+                if (model) {
+                    await model.destroy()
+                }
+            }
             res.status(200).json({
-                "msg": "trasacao deleted"
+                "msg": "transactions deleted"
             })
-        } else {
-            res.status(404).json({
-                "errors": [
-                    {
-                        "type": "id",
-                        "msg": "Record not found",
-                        "location": "params"
-                    }
-                ]
-            })
+        } catch (e) {
+            next(e)
         }
-    } catch (e) {
-        next(e)
+    } else {
+        res.status(400).json(error)
     }
 }
 
@@ -233,5 +231,5 @@ module.exports = {
     readOne,
     readAll,
     update,
-    deleteOne
+    deleteAll
 }

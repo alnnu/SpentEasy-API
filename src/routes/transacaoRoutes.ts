@@ -15,6 +15,6 @@ router.get(`${baseRoute}/`, transacaoController.readAll)
 
 router.put(`${baseRoute}/:id`, uptadeTransacao, transacaoController.update)
 
-router.delete(`${baseRoute}/:id`, transacaoController.deleteOne)
+router.delete(`${baseRoute}/delete`, transacaoController.deleteAll)
 
 module.exports = router
